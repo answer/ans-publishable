@@ -40,6 +40,6 @@ Article の publishable を取得するなら、
 
 * publishable_scope でメソッド名を返すことで、 publishable 以外のスコープを使用可能
 * publish_model でモデルクラスを返すことで、 ArticlePublish 以外のモデルを使用可能
-* publish_foreign_column でカラム名を返すことで、 article_publish_id 以外のカラムを使用可能
-* publish_primary_column でカラム名を返すことで、 ArticlePublish.id 以外のカラムを使用可能
+* publish_foreign_key でカラム名を返すことで、 article_publish_id 以外のカラムを使用可能
+* publish_primary_key でカラム名を返すことで、 ArticlePublish.id 以外のカラムを使用可能
 

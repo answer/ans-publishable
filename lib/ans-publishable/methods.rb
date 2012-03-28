@@ -8,8 +8,8 @@ module Ans::Publishable::Methods
     begin
 
       transaction do
-        publish_id = publish_model.create.send(publish_primary_column)
-        where(publish_foreign_column => nil).send(publishable_scope,hash).update_all publish_foreign_column => publish_id
+        publish_id = publish_model.create.send(publish_primary_key)
+        where(publish_foreign_key => nil).send(publishable_scope,hash).update_all publish_foreign_key => publish_id
       end
 
     rescue => e
@@ -21,7 +21,7 @@ module Ans::Publishable::Methods
       end
     end
 
-    where(publish_foreign_column => publish_id)
+    where(publish_foreign_key => publish_id)
   end
 
   private
@@ -32,10 +32,10 @@ module Ans::Publishable::Methods
   def publish_model
     parent.const_get("#{model_name}Publish")
   end
-  def publish_foreign_column
+  def publish_foreign_key
     "#{table_name.singularize}_publish_id".to_sym
   end
-  def publish_primary_column
+  def publish_primary_key
     :id
   end
 

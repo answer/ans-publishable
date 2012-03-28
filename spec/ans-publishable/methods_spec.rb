@@ -93,9 +93,9 @@ describe Ans::Publishable::Methods do
         end
       end
 
-      context "publish_foreign_column をオーバーライドする場合" do
+      context "publish_foreign_key をオーバーライドする場合" do
         before do
-          stub(AnsPublishableMethods_Article).publish_foreign_column{:send_id}
+          stub(AnsPublishableMethods_Article).publish_foreign_key{:send_id}
         end
         it "は、 send_id を使用して返す" do
           the_action.should == @result
@@ -106,9 +106,9 @@ describe Ans::Publishable::Methods do
         end
       end
 
-      context "publish_primary_column をオーバーライドする場合" do
+      context "publish_primary_key をオーバーライドする場合" do
         before do
-          stub(AnsPublishableMethods_Article).publish_primary_column{:other_id}
+          stub(AnsPublishableMethods_Article).publish_primary_key{:other_id}
         end
         it "は、 other_id を使用して返す" do
           the_action.should == @other_result
