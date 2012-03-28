@@ -2,6 +2,6 @@ require "ans-publishable/version"
 
 module Ans
   module Publishable
-    # Your code goes here...
+    autoload :Methods, "ans-publishable/methods"
   end
 end
