@@ -124,8 +124,8 @@ describe Ans::Publishable::Methods do
         # retry 5回
         stub(AnsPublishableMethods_ArticlePublish).create.times(5){raise "作成エラー"}
       end
-      it "は、空の配列を返す" do
-        the_action.should == []
+      it "は、例外を発生させる" do
+        proc{the_action}.should raise_error("作成エラー")
       end
     end
 

@@ -17,7 +17,7 @@ module Ans::Publishable::Methods
       if count < retry_limit
         retry
       else
-        return []
+        raise
       end
     end
 
