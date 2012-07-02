@@ -24,8 +24,6 @@ module Ans::Publishable::Methods
     where(publish_foreign_key => publish_id)
   end
 
-  private
-
   def publishable_scope
     :publishable
   end
