@@ -21,7 +21,20 @@ module Ans::Publishable::Methods
       end
     end
 
-    where(publish_foreign_key => publish_id)
+    scoped = where(publish_foreign_key => publish_id)
+    unless block_given?
+      scoped
+    else
+      scoped.each do |item|
+        begin
+          transaction do
+            yield item
+          end
+        rescue => e
+          item.revert_publish
+        end
+      end
+    end
   end
 
   def publishable_scope
