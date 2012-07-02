@@ -5,22 +5,24 @@ require "spec_helper"
 describe Ans::Publishable::Methods do
   include Ans::Feature::Helpers::ActionHelper
 
+  class AnsPublishableMethods_Article
+    include Ans::Publishable
+
+    def self.transaction
+      yield
+    end
+    def self.table_name
+      "articles"
+    end
+    def self.model_name
+      "AnsPublishableMethods_Article"
+    end
+  end
+  class AnsPublishableMethods_ArticlePublish; end
+  class AnsPublishableMethods_ArticleSend; end
+
   describe ".publish" do
     before do
-      class AnsPublishableMethods_Article
-        extend Ans::Publishable::Methods
-        def self.transaction
-          yield
-        end
-        def self.table_name
-          "articles"
-        end
-        def self.model_name
-          "AnsPublishableMethods_Article"
-        end
-      end
-      class AnsPublishableMethods_ArticlePublish; end
-      class AnsPublishableMethods_ArticleSend; end
 
       @id = 1
       @other_id = 2
@@ -130,6 +132,41 @@ describe Ans::Publishable::Methods do
     end
 
   end
+
+  describe ".revert_publish" do
+    before do
+      @item = AnsPublishableMethods_Article.new
+      stub(@item).article_publish_id=
+      stub(@item).send_id=
+      stub(@item).save
+
+      the_action do
+        @item.revert_publish
+      end
+    end
+
+    context "デフォルトのメソッド構成でコールする場合" do
+      it "は、 publish_id を nil に更新する" do
+        the_action
+        @item.should have_received.article_publish_id=(nil)
+        @item.should have_received.save
+      end
+    end
+
+    context "publish_foreign_key をオーバーライドする場合" do
+      before do
+        stub(AnsPublishableMethods_Article).publish_foreign_key{:send_id}
+      end
+      it "は、 send_id を nil に更新する" do
+        the_action
+        @item.should have_received.send_id=(nil)
+        @item.should_not have_received.article_publish_id=(nil)
+        @item.should have_received.save
+      end
+    end
+
+  end
+
 
 end
 
