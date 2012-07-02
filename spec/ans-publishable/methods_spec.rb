@@ -45,7 +45,14 @@ describe Ans::Publishable::Methods do
       stub(AnsPublishableMethods_Article).where(send_id: @other_id){@other_result}
 
       the_action do
-        AnsPublishableMethods_Article.publish(@args)
+        unless @block
+          AnsPublishableMethods_Article.publish(@args)
+        else
+          @result = @items
+          AnsPublishableMethods_Article.publish(@args) do |item|
+            @block.call(item)
+          end
+        end
       end
     end
 
@@ -116,6 +123,40 @@ describe Ans::Publishable::Methods do
           the_action.should == @other_result
           AnsPublishableMethods_Article.should have_received.update_all(article_publish_id: @other_id)
           AnsPublishableMethods_Article.should have_received.where(article_publish_id: @other_id)
+        end
+      end
+
+      context "ブロックを渡す場合" do
+        before do
+          @items = [
+            AnsPublishableMethods_Article.new,
+            AnsPublishableMethods_Article.new,
+            AnsPublishableMethods_Article.new,
+          ]
+          stub(@items[0]).revert_publish
+          stub(@items[1]).revert_publish
+          stub(@items[2]).revert_publish
+
+          stub(@items[0]).id{0}
+          stub(@items[1]).id{1}
+          stub(@items[2]).id{2}
+
+          @called_items = []
+
+          @block = proc{|item|
+            raise "error" if item.id == 1
+            @called_items << item
+          }
+        end
+        it "は、 items を順に処理する" do
+          the_action
+          @called_items.should == [@items[0], @items[2]]
+        end
+        it "は、エラーが起こった場合に item.revert_publish を呼び出す" do
+          the_action
+          @items[0].should_not have_received.revert_publish
+          @items[1].should     have_received.revert_publish
+          @items[2].should_not have_received.revert_publish
         end
       end
 
