@@ -22,19 +22,25 @@ module Ans::Publishable::Methods
     end
 
     scoped = where(publish_foreign_key => publish_id)
-    unless block_given?
-      scoped
-    else
+
+    if block_given?
+      errors = []
+
       scoped.each do |item|
         begin
           transaction do
             yield item
           end
         rescue => e
+          errors << e
           item.revert_publish
         end
       end
+
+      raise "#{errors.map{|e| e.message}.join("|")}" if errors.length > 0
     end
+
+    scoped
   end
 
   def publishable_scope
