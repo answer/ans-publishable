@@ -3,45 +3,40 @@ ans publishable
 
 同時に実行しても重複しないコレクションを取得するメソッドを提供する
 
+Usage
+-----
+
 	class Article < ActiveRecord::Base
 	  include Ans::Publishable
 	end
 	
-	Article.publish({scope_params: args}) do |article|
-	  # article に対して重複しない処理を記述
+	Article.publish(scope_params) do |article|
+	  # article に対する何らかの処理
 	end
 
-1. 一意な `publish_id` を生成
-2. コレクションに `publish_id` を設定
-3. 各レコードごとに transaction して与えられたブロックを処理
-4. StandardError が発生した場合はそのレコードのみ transaction でロールバックされ、 `publish_id` を nil に戻す
+時間を置かずに実行されても、同じモデルに対して、二重に処理することがないように考慮している
 
-メソッド
+内部仕様
 --------
 
-### publish(hash) ###
+1. ArticlePublish モデルにより、一意な `article_publish_id` を生成
+2. Article の `article_publish_id` に生成した `id` を設定
+3. その `id` を持つ Article を順に取得して transaction を張りつつブロックを処理
+4. StandardError が発生した場合はそのレコードのみ transaction でロールバックされ、 `publish_id` を nil に戻す
 
-Article.publishable(hash) で返されるコレクションに ArticlePublish.id を設定
-
-`where(publish_id: id)` を返す
-
-### revert_publish ###
-
-`article.revert_publish` で `publish_id` を削除
-
+publish メソッドにブロックを渡さなかった場合、生成した `article_publish_id` を持つ Article のリレーションが返される
 
 規約
 ----
 
-Article の publishable を取得するなら、
+Article の publishable を取得する場合、
 
 * `Article.publishable(hash)` が定義されていること
 * `ArticlePublish` で `publish_id` を振り出すこと
 * `Article.article_publish_id` に `publish_id` を持つこと
 * `ArticlePublish.id` を `publish_id` として扱うこと
 
-
-== オーバーライド
+### オーバーライド
 
 * `publishable_scope` でメソッド名を返すことで、 `publishable` 以外のスコープを使用可能
 * `publish_model` でモデルクラスを返すことで、 `ArticlePublish` 以外のモデルを使用可能
