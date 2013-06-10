@@ -6,15 +6,36 @@ ans publishable
 Usage
 -----
 
+Article モデルに対して処理を行う場合、
+
 	class Article < ActiveRecord::Base
 	  include Ans::Publishable
+	  
+	  # `article_publish_id` カラムを追加
+	  
+	  scope :publishable, lambda{|args|
+	    # 処理を実行するコレクションを返す
+	    # `article_publish_id is null` の条件は自動で追加される
+	  }
 	end
 	
+	# ArticlePublish モデルを追加
+	class ArticlePublish < ActiveRecord::Base
+	  # カラムは id 以外は必要ない
+	end
+
+	# job
 	Article.publish(scope_params) do |article|
 	  # article に対する何らかの処理
 	end
 
 時間を置かずに実行されても、同じモデルに対して、二重に処理することがないように考慮している
+
+用例
+----
+
+- メールキューの処理 : 送信時刻が過去の、未送信のメールを送信する
+- 記事の公開 : 公開時刻が過去の記事を公開して、通知メールを送信する
 
 内部仕様
 --------
