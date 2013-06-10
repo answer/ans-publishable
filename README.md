@@ -11,13 +11,13 @@ Article モデルに対して処理を行う場合、
 	class Article < ActiveRecord::Base
 	  include Ans::Publishable
 	  
-	  # `article_publish_id` カラムを追加
-	  
 	  scope :publishable, lambda{|args|
 	    # 処理を実行するコレクションを返す
-	    # `article_publish_id is null` の条件は自動で追加される
+	    # article_publish_id is null の条件は自動で追加される
 	  }
 	end
+	
+	# Article に article_publish_id カラムを追加
 	
 	# ArticlePublish モデルを追加
 	class ArticlePublish < ActiveRecord::Base
@@ -35,7 +35,12 @@ Article モデルに対して処理を行う場合、
 ----
 
 - メールキューの処理 : 送信時刻が過去の、未送信のメールを送信する
-- 記事の公開 : 公開時刻が過去の記事を公開して、通知メールを送信する
+- ポイントの追加 : 実行時刻が過去の、未処理のキューを処理してポイントを追加、メールの送信等を行う
+
+メールの送信や、ポイントの追加など、二重処理すると困る場合
+
+スケジューラーで処理を行なっている場合、機械の状態によって前の実行が終わらないうちに
+次の実行が始まってしまう可能性があり、二重処理されてしまう
 
 内部仕様
 --------
