@@ -37,7 +37,7 @@ module Ans::Publishable::Methods
         end
       end
 
-      raise "#{errors.map{|e| e.message}.join("|")}" if errors.length > 0
+      raise "#{errors.map{|e| [e.message,e.backtrace].join("\n")}.join("\n\n")}" if errors.length > 0
     end
 
     scoped
